@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Fatal Clover</title>
+    <link rel="stylesheet" href="room-menu.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+      html,body,#unity-canvas{width:100%;height:100%;margin:0;overflow:hidden;background:#111;display:block}
+      iframe{position:fixed;border:0;transform-origin:top left;background:#101810}
+      #computer-hint{position:fixed;bottom:5%;left:50%;transform:translateX(-50%);color:white;background:#111c;padding:.5em 1em;font:18px sans-serif;pointer-events:none}
+      .look-unlocked{cursor:auto!important}
+      #look-prompt{position:fixed;z-index:2;bottom:6%;left:50%;transform:translateX(-50%);background:#111d;color:#fff;padding:.55em 1em;font:16px sans-serif;text-align:center;pointer-events:none}
+      #look-prompt button{pointer-events:auto}
+    </style>
+  </head><body>
+    <canvas id="unity-canvas" tabindex="0"></canvas>
+    <div id="computer-hint" hidden>[E] 컴퓨터 사용하기</div>
+    <div id="look-prompt" hidden role="status"><span></span> <button hidden>주소 복사</button></div>
+    <script src="room-input.js"></script>
+    <script src="computer.js"></script>
+    <script src="room-menu.js"></script>
+    <script src="Build/WebGL.loader.js"></script>
+    <script>
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        arguments: [],
+        dataUrl: "Build/WebGL.data",
+        frameworkUrl: "Build/WebGL.framework.js",
+        codeUrl: "Build/WebGL.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "fatal clover",
+        productVersion: "0.1.0",
+        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
+        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+      }).then((unityInstance) => {
+        window.clover.player = unityInstance;
+        window.roomMenu.ready();
+
+      }).catch((message) => {
+        alert(message);
+      });
+    </script>
+  </body>
+</html>
