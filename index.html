@@ -12,22 +12,23 @@
       #computer-hint{position:fixed;bottom:5%;left:50%;transform:translateX(-50%);color:white;background:#111c;padding:.5em 1em;font:18px sans-serif;pointer-events:none}
       .look-unlocked{cursor:auto!important}
       #look-prompt{position:fixed;z-index:2;bottom:6%;left:50%;transform:translateX(-50%);background:#111d;color:#fff;padding:.55em 1em;font:16px sans-serif;text-align:center;pointer-events:none}
+      #look-prompt.drag-mode{top:2%;bottom:auto;font-size:14px}
       #look-prompt button{pointer-events:auto}
     </style>
   </head><body>
     <canvas id="unity-canvas" tabindex="0"></canvas>
     <div id="computer-hint" hidden>[E] 컴퓨터 사용하기</div>
     <div id="look-prompt" hidden role="status"><span></span> <button hidden>주소 복사</button></div>
-    <script src="room-input.js"></script>
+    <script src="room-input.js?v=2"></script>
     <script src="computer.js"></script>
     <script src="room-menu.js"></script>
-    <script src="Build/WebGL.loader.js"></script>
+    <script src="Build/WebGL.loader.js?input=2"></script>
     <script>
       createUnityInstance(document.querySelector("#unity-canvas"), {
         arguments: [],
-        dataUrl: "Build/WebGL.data",
-        frameworkUrl: "Build/WebGL.framework.js",
-        codeUrl: "Build/WebGL.wasm",
+        dataUrl: "Build/WebGL.data?input=2",
+        frameworkUrl: "Build/WebGL.framework.js?input=2",
+        codeUrl: "Build/WebGL.wasm?input=2",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "fatal clover",

@@ -5,27 +5,34 @@
   const copy = prompt.querySelector('button');
   const nativeLock = canvas.requestPointerLock?.bind(canvas);
   let mode = 'MainMenu', pending = false, failure = '', ticket = 0;
+  let gestureActive = false;
   const locked = () => document.pointerLockElement === canvas;
   const foreground = () => document.hasFocus() && !document.hidden;
   const allowed = () => mode === 'Intro' || mode === 'Gameplay';
-  const ready = () => mode === 'Gameplay' && foreground() && locked() && document.activeElement === canvas;
+  const ready = () => mode === 'Gameplay' && foreground() && (locked() || gestureActive) && document.activeElement === canvas;
   function update() {
-    prompt.hidden = mode !== 'Gameplay' || ready();
+    const dragMode = ready() && !locked();
+    prompt.hidden = mode !== 'Gameplay' || (ready() && !dragMode);
+    prompt.classList.toggle('drag-mode', dragMode);
     const unavailable = !nativeLock || ['UnknownError','WrongDocumentError','SecurityError','NotSupportedError'].includes(failure);
-    message.textContent = unavailable ? '마우스를 잠글 수 없습니다. 일반 브라우저에서 직접 열거나 화면을 클릭해 다시 시도하세요.' : '화면을 클릭하여 계속하기';
-    copy.hidden = !unavailable;
+    message.textContent = dragMode ? 'WASD 이동 · 마우스 왼쪽 버튼을 누르고 끌어 시점 회전' : unavailable ? '마우스를 잠글 수 없습니다. 일반 브라우저에서 직접 열거나 화면을 클릭해 다시 시도하세요.' : '화면을 클릭하여 계속하기';
+    copy.hidden = dragMode || !unavailable;
     canvas.classList.toggle('look-unlocked', !locked());
     if (!ready()) document.getElementById('computer-hint').hidden = true;
   }
   function release() {
+    gestureActive = false;
     ++ticket;
     pending = false;
     if (locked()) document.exitPointerLock();
   }
   function request(event) {
-    if (!event.isTrusted || !allowed() || !foreground() || !nativeLock) { update(); return; }
+    if (!event.isTrusted || !allowed()) return;
     canvas.focus({preventScroll:true});
-    if (locked() || pending) { update(); return; }
+    if (!foreground()) { update(); return; }
+    if (gestureActive && failure) { update(); return; }
+    gestureActive = true;
+    if (!nativeLock || locked() || pending) { update(); return; }
     const id = ++ticket;
     pending = true;
     const fail = error => {
@@ -42,6 +49,7 @@
   if (nativeLock) canvas.requestPointerLock = () => {};
   document.addEventListener('pointerlockchange', () => {
     pending = false;
+    gestureActive = false;
     if (locked()) {
       if (!allowed() || !foreground()) release();
       else { failure = ''; canvas.focus({preventScroll:true}); }
@@ -63,6 +71,7 @@
   };
   window.roomInput = {
     ready,
+    inputMode() { return ready() ? (locked() ? 2 : 1) : 0; },
     enter(next) {
       mode = next;
       if (!allowed()) { release(); failure=''; }
@@ -93,7 +102,7 @@
     out.style.cssText='position:fixed;inset:auto 0 0;pointer-events:none;color:white;background:#121812;z-index:8;font:12px monospace';
     document.body.append(out);
     setInterval(()=>{out.textContent='INPUT-QA '+JSON.stringify({
-      state:window.roomInput.state,lock:locked(),focus:document.activeElement?.tagName,
+      state:window.roomInput.state,input:window.roomInput.inputMode(),lock:locked(),focus:document.activeElement?.tagName,
       full:!!document.fullscreenElement,foreground:foreground(),error:failure,
       frames:trace.frames,trusted:trace.trusted,native:trace.native,unity:trace.unity,
       turns:+trace.turns.toFixed(3),view:trace.view
